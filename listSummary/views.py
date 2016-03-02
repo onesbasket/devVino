@@ -1,5 +1,5 @@
 # Create your views here.
-from listSummary.models import vino_transferSummary,  vino_transferSummary_Year
+from listSummary.models import vino_transferSummary,tagCountry, tagRegion, tagGrape,  vino_transferSummary_Year
 
 #RequestContext
 from django.template import RequestContext
@@ -10,7 +10,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render_to_response, get_object_or_404
 
 def listSummary(request):
-    selectQuery = vino_transferSummary.objects.select_related().all().prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set")
+    selectQuery = vino_transferSummary.objects.values('id', 'kanaName', 'itemPrice', 'reviewAvarage', 'reviewCount').prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set")
     if request.GET.get('lowPrice') and request.GET.get('highPrice'):
         getLowPrice = float(request.GET.get('lowPrice'))
         getHighPrice = float(request.GET.get('highPrice'))
@@ -68,13 +68,19 @@ def listSummary(request):
     page = request.GET.get('page')
     try:
         responseData = paginator.page(page)
+        numPage = page
     except PageNotAnInteger:
         # If page is not an integer, deliver first page.
         responseData = paginator.page(1)
+        numPage = 1
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         responseData = paginator.page(paginator.num_pages)
+        numPage = paginator.num_pages
+
+    selectCountryQuery = tagCountry.objects.filter(vino_transfersummary__id__gte=1, vino_transfersummary__id__lte=2).values('id')
     return render_to_response('item_list.html',
                               {'responseData': responseData,
+                               'country': selectCountryQuery,
                                },
                                context_instance=RequestContext(request))
