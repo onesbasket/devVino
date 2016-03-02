@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {{ result22 }}
+    <div class="pagination">
+    <span class="step-links">
+        {% if responseData.has_previous %}
+            <a href="?page={{ responseData.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ responseData.number }} of {{ responseData.paginator.num_pages }}.
+        </span>
+
+        {% if responseData.has_next %}
+            <a href="?page={{ responseData.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+    </div>
+
+
+    <h2>Publishers</h2>
+    <ul>
+        {% for Item in responseData %}
+            <li>{{ uname }}<a href="/Consolidate/{{ Item.id }}/">{{ Item.kanaName }}</a>{{ Item.year }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

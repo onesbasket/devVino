@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!--
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="jquery.extablefilter-latest.js"></script>
+
+-->
+<head>
+<script src='{{ MEDIA_URL }}/javascript/jquery.js'></script>
+<script src='{{ MEDIA_URL }}/javascript/multifilter.min.js'></script>
+<link rel="stylesheet" href="style.css" />
+<title>{% block title %}My amazing site2{% endblock %}</title>
+<script type='text/javascript'>
+	//<![CDATA[
+	$(document).ready(function() {$('.filter').multifilter()})
+	//]]>
+</script>
+</head>
+<body>
+    <div id="sidebar">
+        {% block sidebar %}
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/blog/">Blog</a></li>
+        </ul>
+        {% endblock %}
+    </div>
+
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

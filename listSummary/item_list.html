@@ -1,0 +1,10 @@
+
+
+{% block content %}
+    <h2>Publishers</h2>
+    <ul>
+        {% for Item in object_list %}
+            <li><a href="/Consolidate/{{ Item.id }}/">{{ Item.productName }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}
