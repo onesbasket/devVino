@@ -78,9 +78,14 @@ def listSummary(request):
         responseData = paginator.page(paginator.num_pages)
         numPage = paginator.num_pages
 
-    selectCountryQuery = tagCountry.objects.filter(vino_transfersummary__id__gte=1, vino_transfersummary__id__lte=2).values('id')
+    selectCountryQuery = tagCountry.objects.filter(vino_transfersummary__id__gte=1, vino_transfersummary__id__lte=2).values('id','vino_transfersummary__id')
+
+    #dict()
+    #for aa in country:
+    #    aa.id
+    selectCountryQuery = {1:"abc",2:"1"}
     return render_to_response('item_list.html',
                               {'responseData': responseData,
                                'country': selectCountryQuery,
-                               },
-                               context_instance=RequestContext(request))
+                               })
+                               #context_instance=RequestContext(request))

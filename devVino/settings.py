@@ -1,5 +1,6 @@
 # coding: utf-8
-
+import os
+#import jinja2
 # Django settings for devVino project.
 
 #ADMINS = (
@@ -85,11 +86,6 @@ STATICFILES_FINDERS = (
 SECRET_KEY = '_%hz()z61_itzd*b%yrk62ip&uq(oreaf8u0sksz-mjw^)y#dg'
 
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -106,12 +102,6 @@ ROOT_URLCONF = 'devVino.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'devVino.wsgi.application'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    'C:\dropbox\coorier\devVino\\templates',
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -128,9 +118,30 @@ INSTALLED_APPS = (
 )
 
 #
-TEMPLATE_CONTEXT_PROCESSORS = (
-         "listSummary.test_cont_processor.user_name",
-      )
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.jinja2.Jinja2',
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
+        'APP_DIRS': False,
+        },
+]
+#TEMPLATE_LOADERS = (
+#    'django.template.loaders.filesystem.Loader',
+#    'django.template.loaders.app_directories.Loader',
+##     'django.template.loaders.eggs.Loader',
+#)
+
+#TEMPLATE_CONTEXT_PROCESSORS = (
+#         "listSummary.test_cont_processor.user_name",
+#      )
+
+#TEMPLATE_DIRS = (
+#    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+#    # Always use forward slashes, even on Windows.
+#    # Don't forget to use absolute paths, not relative paths.
+#    'C:\dropbox\coorier\devVino\\templates',
+#)
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
