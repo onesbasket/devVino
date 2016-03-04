@@ -22,7 +22,7 @@
     <h2>Publishers</h2>
     <ul>
         {% for Item in responseData %}
-            <li><a href="/Consolidate/{{ Item.id }}/">{{ Item.kanaName }}</a>{{ Item.year }}</li>
+            <li><a href="/Consolidate/{{ Item.id }}/">{{ Item.kanaName }}</a>{{ country[Item.id] }}</li>
         {% endfor %}
     </ul>
     <ul>
