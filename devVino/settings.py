@@ -8,8 +8,7 @@ import os
 #)
 #
 #MANAGERS = ADMINS
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASES = {
     'default': {
@@ -126,8 +125,13 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.jinja2.Jinja2',
         'DIRS': [os.path.join(BASE_DIR, 'templates'),],
         'APP_DIRS': False,
+        'OPTIONS':{
+            'environment': 'devVino.jinja2.environment',
+            }
         },
 ]
+
+
 #TEMPLATE_LOADERS = (
 #    'django.template.loaders.filesystem.Loader',
 #    'django.template.loaders.app_directories.Loader',

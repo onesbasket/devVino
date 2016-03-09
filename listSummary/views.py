@@ -6,11 +6,12 @@ from django.template import RequestContext
 
 #Purpose:Pagenation
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import render
 
 from django.shortcuts import render_to_response, get_object_or_404
 
 def listSummary(request):
-    selectQuery = vino_transferSummary.objects.values('id', 'kanaName', 'itemPrice', 'reviewAvarage', 'reviewCount').prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set")
+    selectQuery = vino_transferSummary.objects.values('id', 'kanaName', 'itemPrice', 'reviewAvarage', 'reviewCount', 'imageUrl').prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set")
     if request.GET.get('lowPrice') and request.GET.get('highPrice'):
         getLowPrice = float(request.GET.get('lowPrice'))
         getHighPrice = float(request.GET.get('highPrice'))
@@ -78,14 +79,36 @@ def listSummary(request):
         responseData = paginator.page(paginator.num_pages)
         numPage = paginator.num_pages
 
-    selectCountryQuery = tagCountry.objects.filter(vino_transfersummary__id__gte=1, vino_transfersummary__id__lte=2).values('id','vino_transfersummary__id')
+    lowNumCount = (int(numPage) -1)*25
+    highNumCount = (int(numPage))*25
 
-    #dict()
-    #for aa in country:
-    #    aa.id
-    selectCountryQuery = {1:"abc",2:"1"}
-    return render_to_response('item_list.html',
+
+    selectCountryQuerys = tagCountry.objects.filter(vino_transfersummary__id__gte=lowNumCount, vino_transfersummary__id__lte=highNumCount).values('vino_transfersummary__id',"name")
+    dictCountry = {}
+    for selectCountryQuery in selectCountryQuerys:
+        dictCountry[selectCountryQuery["vino_transfersummary__id"]] = selectCountryQuery["name"]
+
+    selectGrapeQuerys = tagGrape.objects.filter(vino_transfersummary__id__gte=lowNumCount, vino_transfersummary__id__lte=highNumCount).values('vino_transfersummary__id',"name")
+    dictGrape = {}
+    for selectGrapeQuery in selectGrapeQuerys:
+        if dictGrape.has_key(selectGrapeQuery["vino_transfersummary__id"]):
+            dictGrape[selectGrapeQuery["vino_transfersummary__id"]] = dictGrape[selectGrapeQuery["vino_transfersummary__id"]] +"/"+ selectGrapeQuery["name"]
+        else:
+            dictGrape[selectGrapeQuery["vino_transfersummary__id"]] = selectGrapeQuery["name"]
+
+    selectRegionQuerys = tagRegion.objects.filter(vino_transfersummary__id__gte=lowNumCount, vino_transfersummary__id__lte=highNumCount).values('vino_transfersummary__id',"name")
+    dictRegion = {}
+    for selectRegionQuery in selectRegionQuerys:
+        if dictRegion.has_key(selectRegionQuery["vino_transfersummary__id"]):
+            dictRegion[selectRegionQuery["vino_transfersummary__id"]] = dictRegion[selectRegionQuery["vino_transfersummary__id"]] +"/"+ selectRegionQuery["name"]
+        else:
+            dictRegion[selectRegionQuery["vino_transfersummary__id"]] = selectRegionQuery["name"]
+
+
+    return render(request,'item_list.html',
                               {'responseData': responseData,
-                               'country': selectCountryQuery,
+                               'country': dictCountry,
+                               'grape': dictGrape,
+                               'region': dictRegion,
                                })
                                #context_instance=RequestContext(request))

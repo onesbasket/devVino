@@ -4,12 +4,19 @@
 <!--
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="jquery.extablefilter-latest.js"></script>
-
 -->
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">google.load("jquery", "1.2");</script>
+
+<link rel="stylesheet" href=' css/main.css' />
+<link rel="stylesheet" href= {{ static('css/bootstrap.css')}}  />
+
+
 <head>
-<script src='{{ MEDIA_URL }}/javascript/jquery.js'></script>
-<script src='{{ MEDIA_URL }}/javascript/multifilter.min.js'></script>
-<link rel="stylesheet" href="style.css" />
 <title>{% block title %}My amazing site2{% endblock %}</title>
 <script type='text/javascript'>
 	//<![CDATA[

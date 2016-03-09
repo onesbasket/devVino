@@ -4,28 +4,49 @@
     {{ result22 }}
     <div class="pagination">
     <span class="step-links">
-        {% if responseData.has_previous %}
-            <a href="?page={{ responseData.previous_page_number }}">previous</a>
+        {% if responseData.has_previous() %}
+            <a href="?page={{ responseData.previous_page_number() }}">previous</a>
         {% endif %}
 
         <span class="current">
             Page {{ responseData.number }} of {{ responseData.paginator.num_pages }}.
         </span>
 
-        {% if responseData.has_next %}
-            <a href="?page={{ responseData.next_page_number }}">next</a>
+        {% if responseData.has_next() %}
+            <a href="?page={{ responseData.next_page_number() }}">next</a>
         {% endif %}
     </span>
     </div>
 
 
     <h2>Publishers</h2>
-    <ul>
-        {% for Item in responseData %}
-            <li><a href="/Consolidate/{{ Item.id }}/">{{ Item.kanaName }}</a>{{ country[Item.id] }}</li>
-        {% endfor %}
-    </ul>
-    <ul>
 
-    </ul>
+    <div class="container-fluid">
+	<div class="row">
+		<div class="col-md-3">
+            LEFT MENU
+        </div>
+        <div class="col-md-9">
+            {% for Item in responseData %}
+			<div class="row">
+				<div class="col-md-3">
+					<img alt="Bootstrap Image Preview" src="{{ Item.imageUrl }}">
+				</div>
+				<div class="col-md-6">
+					<p>
+					    <a href="/Consolidate/{{ Item.id }}/">{{ Item.kanaName }}</a>
+                        {% if grape[Item.id] is defined %}{{ grape[Item.id] }}{% endif %}
+                        {% if country[Item.id] is defined %}{{ country[Item.id] }}{% endif %}
+                        {% if region[Item.id] is defined %}{{ region[Item.id] }}{% endif %}
+					</p>
+				</div>
+				<div class="col-md-3">
+					<p>
+					a
+					</p>
+				</div>
+			</div>
+            {% endfor %}
+		</div>
+
 {% endblock %}

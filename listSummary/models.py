@@ -34,6 +34,7 @@ class vino_transferSummary(models.Model):
     countryIds = models.CharField(null=True, db_column='countryId', max_length = 1000)
     regionIds = models.CharField(null=True, db_column='regionId', max_length = 1000)
     grapeIds = models.CharField(null=True, db_column='grapeIds', max_length = 1000)
+    imageUrl = models.CharField(null=True, db_column='imageUrl', max_length = 600)
     tagGrape = models.ManyToManyField(tagGrape)
     tagCountry  = models.ManyToManyField(tagCountry)
     tagRegion = models.ManyToManyField(tagRegion)
