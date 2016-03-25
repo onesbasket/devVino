@@ -5,7 +5,7 @@ from listSummary.models import vino_transferSummary
 urlpatterns = patterns('listSummary.views',
     url(r'^$',ListView.as_view(model=vino_transferSummary),),
     url(r'^search/$','listSummary'),
-    url(r'^(?P<Item_id>\d+)/$', 'detail'),
+    url(r'^detail/(?P<Item_id>\d+)/$', 'detailInfo'),
     url(r'^idProductNameCluster\-(?P<Cluster_id>\w+)/$', 'idProductNameCluster'),
         )
 #    url(r'^(?P<poll_id>\d+)/$', 'detail'),

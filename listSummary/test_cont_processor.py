@@ -1,2 +1,4 @@
 def user_name(request):
-     return {"uname": request.GET.get('lowPrice')}
+    print "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    return {"uname": request.GET.get('lowPrice'),
+             "aaaa":"abc",}

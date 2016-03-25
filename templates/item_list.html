@@ -1,52 +1,79 @@
 {% extends "base.html" %}
+{% load extra %}
 
 {% block content %}
-    {{ result22 }}
     <div class="pagination">
     <span class="step-links">
-        {% if responseData.has_previous() %}
-            <a href="?page={{ responseData.previous_page_number() }}">previous</a>
+        {% if responseData.has_previous %}
+            <a href="?{% url_replace request "page" responseData.previous_page_number %}">previous</a>
         {% endif %}
 
         <span class="current">
             Page {{ responseData.number }} of {{ responseData.paginator.num_pages }}.
         </span>
 
-        {% if responseData.has_next() %}
-            <a href="?page={{ responseData.next_page_number() }}">next</a>
+        {% if responseData.has_next %}
+            <a href="?{% url_replace request "page" responseData.next_page_number %}">next</a>
         {% endif %}
     </span>
     </div>
-
-
-    <h2>Publishers</h2>
-
-    <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-3">
-            LEFT MENU
-        </div>
-        <div class="col-md-9">
-            {% for Item in responseData %}
+     {% for Item in responseData %}
 			<div class="row">
-				<div class="col-md-3">
+               <div class="col-md-12">
+                   <a href="/detail/{{ Item.id }}/">{{ Item.kanaName }}</a><br>
+                   <div style="width:30%; height:2px; background-color:#763A43; margin:0em 0em 1em 0em; padding: 0em; display: inline-block; _display: inline;"></div><div style="width:65%; height:2px; background-color:#CCCCCC; margin:0em 0em 1em 0em; padding: 0em; display: inline-block; _display: inline;"></div
+                   <br>
+               </div>
+				<div class="col-md-2">
 					<img alt="Bootstrap Image Preview" src="{{ Item.imageUrl }}">
 				</div>
-				<div class="col-md-6">
+				<div class="col-md-4">
 					<p>
-					    <a href="/Consolidate/{{ Item.id }}/">{{ Item.kanaName }}</a>
-                        {% if grape[Item.id] is defined %}{{ grape[Item.id] }}{% endif %}
-                        {% if country[Item.id] is defined %}{{ country[Item.id] }}{% endif %}
-                        {% if region[Item.id] is defined %}{{ region[Item.id] }}{% endif %}
+                       {% if grape|lookup:Item.id != "" %}<img style="margin: 3px;" src="{{ STATIC_URL }}image/grape-icon.png" height="23px" width="23px">{{ grape|lookup:Item.id }}<br>{% endif %}
+                        {% if  engCountry|lookup:Item.id != "" %}
+                            <img src="{{ STATIC_URL }}image/flags/{{ engCountry|lookup:Item.id }}.png" height="23px" width="35px">
+                        {% endif %}
+                        {% if country|lookup:Item.id != "" %}{{ country|lookup:Item.id }}<br>{% endif %}
+                        {% if region|lookup:Item.id != "" %}　　　{{ region|lookup:Item.id }}<br>{% endif %}
+					</p>
+				</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="col-md-2">
+					<p>
+                        {% if Item.reviewAvarage == 0 %}<br>
+                        {% elif 1 > Item.reviewAvarage > 0 %}☆☆☆☆☆<br> {{ Item.reviewCount }} ratings<br>
+                        {% elif 2 > Item.reviewAvarage > 1 %}★☆☆☆☆<br> {{ Item.reviewCount }} ratings<br>
+                        {% elif 3 > Item.reviewAvarage > 2 %}★★☆☆☆<br> {{ Item.reviewCount }} ratings<br>
+                        {% elif 4 > Item.reviewAvarage > 3 %}★★★☆☆<br> {{ Item.reviewCount }} ratings<br>
+                        {% elif 5 > Item.reviewAvarage > 4 %}★★★★☆<br> {{ Item.reviewCount }} ratings<br>
+                        {% elif Item.reviewAvarage == 5 %}★★★★★<br> {{ Item.reviewCount }} ratings<br>
+                        {% endif %}
 					</p>
 				</div>
 				<div class="col-md-3">
 					<p>
-					a
+                        <Span style="font-size: large;"> Avarage Price</Span><br>
+					    <Span style="font-size: x-large;">\{{ Item.itemPrice }}</Span>
 					</p>
 				</div>
 			</div>
             {% endfor %}
-		</div>
+
 
 {% endblock %}

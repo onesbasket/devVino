@@ -13,7 +13,7 @@
 <script type="text/javascript">google.load("jquery", "1.2");</script>
 
 <link rel="stylesheet" href=' css/main.css' />
-<link rel="stylesheet" href= {{ static('css/bootstrap.css')}}  />
+<link rel="stylesheet" href= "{{ STATIC_URL }}css/bootstrap.css"  />
 
 
 <head>
@@ -23,19 +23,40 @@
 	$(document).ready(function() {$('.filter').multifilter()})
 	//]]>
 </script>
+
 </head>
 <body>
-    <div id="sidebar">
+    <img { alt="vivino" src="{{ STATIC_URL }}image/logo1.png")}} height="100" width="320">
+    <div class="container-fluid">
+	    <div class="row">
         {% block sidebar %}
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/blog/">Blog</a></li>
-        </ul>
-        {% endblock %}
-    </div>
+            <div class="col-md-3">
+                LEFT MENU
+                <form method="get">
 
-    <div id="content">
-        {% block content %}{% endblock %}
-    </div>
+                <span style="font-size:12px;">
+                    価格：<br/>
+                    {{ forms.lowPrice }}～{{ forms.highPrice }}<br/>
+                    年代：<br/>
+                    {{ forms.lowYears }}<br/>
+                    容量:<br/>
+                    {{ forms.lowVolume }}<br/>
+                </span>
+
+                {{ forms2.as_p }}
+                    {% for field in forms2 %}
+                    {{ field.total_form_count }}
+                    {% endfor %}
+
+                <input type="submit" value="Search" />
+                </form>
+            </div>
+        {% endblock %}
+
+        <div class="col-md-9">
+        {% block content %}
+        {% endblock %}
+        </div>
+
 </body>
 </html>

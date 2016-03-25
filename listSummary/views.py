@@ -1,5 +1,7 @@
-# Create your views here.
-from listSummary.models import vino_transferSummary,tagCountry, tagRegion, tagGrape,  vino_transferSummary_Year
+# coding: utf-8
+
+#  Create your views here.
+from listSummary.models import vino_transferSummary,tagCountry, tagRegion, tagGrape, vino_transferDetail,  vino_transferSummary_Year
 
 #RequestContext
 from django.template import RequestContext
@@ -10,60 +12,109 @@ from django.shortcuts import render
 
 from django.shortcuts import render_to_response, get_object_or_404
 
+from devVino.processRequestGet import test
+from devVino.form import KakikomiForm, selectionListForm
+
+def detailInfo(request, Item_id):
+    querySummary = vino_transferSummary.objects.values('id', 'kanaName', 'itemPrice', 'reviewAvarage', 'reviewCount', 'imageUrl').filter(id=Item_id).prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set")
+    queryDetail= vino_transferDetail.objects.filter(summaryId__pk=Item_id)
+    print "------------------"
+    print len(queryDetail)
+    context_instance =  {'querySummary': querySummary,
+                         'queryDetail': queryDetail,}
+
+    return render(request,'detail.html',context_instance,)#,
+
 def listSummary(request):
+    #f = test(request)
+
+    f = KakikomiForm(request.GET)
+    print f.is_valid()
+    cleanData = f.cleaned_data
+
+
     selectQuery = vino_transferSummary.objects.values('id', 'kanaName', 'itemPrice', 'reviewAvarage', 'reviewCount', 'imageUrl').prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set")
-    if request.GET.get('lowPrice') and request.GET.get('highPrice'):
-        getLowPrice = float(request.GET.get('lowPrice'))
-        getHighPrice = float(request.GET.get('highPrice'))
+    if cleanData.get('lowPrice') and cleanData.get('highPrice'):
+        getLowPrice = float(cleanData.get('lowPrice'))
+        getHighPrice = float(cleanData.get('highPrice'))
         selectQuery = selectQuery.filter(itemPrice__gte= getLowPrice, itemPrice__lte= getHighPrice)
-    elif request.GET.get('lowPrice'):
-        getLowPrice = float(request.GET.get('lowPrice'))
+    elif cleanData.get('lowPrice'):
+        getLowPrice = float(cleanData.get('lowPrice'))
         selectQuery = selectQuery.filter(itemPrice__gte= getLowPrice)
-    elif request.GET.get('highPrice'):
-        getHighPrice = float(request.GET.get('highPrice'))
+    elif cleanData.get('highPrice'):
+        getHighPrice = float(cleanData.get('highPrice'))
         selectQuery = selectQuery.filter(itemPrice__lte= getHighPrice)
 
-    if request.GET.get('lowYears') and request.GET.get('highYears'):
-        getLowYears = request.GET.get('lowYears')
-        getHighYears = request.GET.get('highYears')
+    if cleanData.get('lowYears') and cleanData.get('highYears'):
+        getLowYears = cleanData.get('lowYears')
+        getHighYears = cleanData.get('highYears')
         selectQuery = selectQuery.filter(vino_transfersummary_year__year__gte= getLowYears, vino_transfersummary_year__year__lte= getHighYears)
-    elif request.GET.get('lowYears'):
-        getLowYears = request.GET.get('lowYears')
+    elif cleanData.get('lowYears'):
+        getLowYears = cleanData.get('lowYears')
         selectQuery = selectQuery.filter(vino_transfersummary_year__year__gte= getLowYears)
-    elif request.GET.get('highYears'):
-        getHighYears = request.GET.get('highYears')
+    elif cleanData.get('highYears'):
+        getHighYears = cleanData.get('highYears')
         selectQuery = selectQuery.filter(vino_transfersummary_year__year__lte= getHighYears)
 
 
-    if request.GET.get('lowVolume'):
-        getLowPrice = request.GET.get('lowVolume')
+    if cleanData.get('lowVolume'):
+        getLowPrice = cleanData.get('lowVolume')
 
-    if request.GET.get('highVolume'):
-        getHighPrice = request.GET.get('highVolume')
+    if cleanData.get('highVolume'):
+        getHighPrice = cleanData.get('highVolume')
 
 
-    if request.GET.get('reviewAvarage'):
-        getReviewAvarage = request.GET.get('reviewAvarage')
+    if cleanData.get('reviewAvarage'):
+        getReviewAvarage = cleanData.get('reviewAvarage')
         selectQuery = selectQuery.filter(reviewAvarage__gt= getReviewAvarage)
 
-    if request.GET.get('reviewCount'):
-        getReviewCount = request.GET.get('reviewCount')
+    if cleanData.get('reviewCount'):
+        getReviewCount = cleanData.get('reviewCount')
 
-    if request.GET.get('tasteType'):
-        getTasteType = request.GET.get('tasteType')
+    if cleanData.get('tasteType'):
+        getTasteType = cleanData.get('tasteType')
         selectQuery = selectQuery.filter(vino_transfersummary_tastetype__tasteType=getTasteType)
 
-    if request.GET.get('countryIds'):
-        getCountryIds = request.GET.get('countryIds')
-        selectQuery = selectQuery.filter(tagCountry__exact=getCountryIds)
 
-    if request.GET.get('regionIds'):
-        getRegionIds = request.GET.get('regionIds')
-        selectQuery = selectQuery.filter(tagRegion__exact=getRegionIds)
 
-    if request.GET.get('grapeIds'):
-        getGrapeIds = request.GET.get('grapeIds')
-        selectQuery = selectQuery.filter(tagGrape__exact=getGrapeIds)
+
+
+
+
+    #values_listで値渡しすぎるとSQLエラーになるので、あえて遅くなりやすいけどSQLをネストさせてる。
+    f2 = selectionListForm(request.GET)
+    f2.fields['grapeIds'].queryset = tagGrape.objects.distinct().filter(vino_transfersummary__id__in=selectQuery.values_list("id", flat=True))
+    f2.fields['regionIds'].queryset = tagRegion.objects.distinct().filter(vino_transfersummary__id__in=selectQuery.values_list("id", flat=True))
+    f2.fields['countryIds'].queryset = tagCountry.objects.distinct().filter(vino_transfersummary__id__in=selectQuery.values_list("id", flat=True))
+    print f2.is_valid()
+
+
+    if request.GET.getlist('grapeIds'):
+        getGrapeIds = request.GET.getlist('grapeIds')
+        selectQuery = selectQuery.filter(tagGrape__in=getGrapeIds)
+
+
+    if request.GET.getlist('countryIds'):
+        getCountryIds = request.GET.getlist('countryIds')
+        print "=======================", getCountryIds
+        selectQuery = selectQuery.filter(tagCountry__in=getCountryIds)
+
+    if request.GET.getlist('regionIds'):
+        getRegionIds = request.GET.getlist('regionIds')
+        selectQuery = selectQuery.filter(tagRegion__in=getRegionIds)
+
+
+    #print "999999999999999999999999"
+    #print f2
+    #print cleanData
+    #for testes in f2:
+    #    print "&&&&&&&&&&&&&&&&"
+    #    print testes.field
+    #print "f2"
+    #print f2.is_valid()
+
+
+
 
     paginator = Paginator(selectQuery, 25)# Show 25 contacts per page
     page = request.GET.get('page')
@@ -79,14 +130,17 @@ def listSummary(request):
         responseData = paginator.page(paginator.num_pages)
         numPage = paginator.num_pages
 
-    lowNumCount = (int(numPage) -1)*25
-    highNumCount = (int(numPage))*25
+    lowNumCount = paginator.page(numPage).start_index()
+    print "aaa", lowNumCount
+    highNumCount = paginator.page(numPage).end_index()
+    print "aaa", highNumCount
 
-
-    selectCountryQuerys = tagCountry.objects.filter(vino_transfersummary__id__gte=lowNumCount, vino_transfersummary__id__lte=highNumCount).values('vino_transfersummary__id',"name")
+    selectCountryQuerys = tagCountry.objects.filter(vino_transfersummary__id__gte=lowNumCount, vino_transfersummary__id__lte=highNumCount).values('vino_transfersummary__id',"name","engName")
     dictCountry = {}
+    dictCountryEng = {}
     for selectCountryQuery in selectCountryQuerys:
         dictCountry[selectCountryQuery["vino_transfersummary__id"]] = selectCountryQuery["name"]
+        dictCountryEng[selectCountryQuery["vino_transfersummary__id"]] = selectCountryQuery["engName"]
 
     selectGrapeQuerys = tagGrape.objects.filter(vino_transfersummary__id__gte=lowNumCount, vino_transfersummary__id__lte=highNumCount).values('vino_transfersummary__id',"name")
     dictGrape = {}
@@ -105,10 +159,20 @@ def listSummary(request):
             dictRegion[selectRegionQuery["vino_transfersummary__id"]] = selectRegionQuery["name"]
 
 
-    return render(request,'item_list.html',
-                              {'responseData': responseData,
+
+    print "------------------aaaaaa---------------", RequestContext(request)
+    request_context = RequestContext(request)
+    request_context.push({"my_name": "Adrian"})
+
+
+    context_instance =  {'responseData': responseData,
                                'country': dictCountry,
+                               'engCountry': dictCountryEng,
                                'grape': dictGrape,
                                'region': dictRegion,
-                               })
+                               'forms': f,
+                               'forms2': f2,}
+    print context_instance
+
+    return render(request,'item_list.html',context_instance,)#,
                                #context_instance=RequestContext(request))

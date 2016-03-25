@@ -121,14 +121,34 @@ INSTALLED_APPS = (
 #
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES = [
+ #   {
+ #       'BACKEND': 'django.template.backends.jinja2.Jinja2',
+ #       'DIRS': [os.path.join(BASE_DIR, 'templates'),],
+ #       'APP_DIRS': True,
+ #       'OPTIONS':{
+ #           'environment': 'devVino.jinja2.environment',
+ #           'extensions': ['listSummary.templatetags.extra.url_replace',],
+ #           }
+ #       },
     {
-        'BACKEND': 'django.template.backends.jinja2.Jinja2',
+
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates'),],
-        'APP_DIRS': False,
-        'OPTIONS':{
-            'environment': 'devVino.jinja2.environment',
-            }
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'django.core.context_processors.request',
+                'listSummary.test_cont_processor.user_name',
+            ],
         },
+    },
 ]
 
 
