@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 {% load extra %}
 {% block content %}
+    <p>
+    {{ aggression.itemPrice__min }}～{{ aggression.itemPrice__max }}
+    </p>
     {% for Item in querySummary %}
         {{Item.kanaName}}
     {% endfor %}
     {% for Item in queryDetail %}
 			<div class="row">
                <div class="col-md-12">
-                   <a href="/Consolidate/{{ Item.itemUrl }}/">{{ Item.itemName }}</a><br>
+                   <a href="{{ Item.itemUrl }}/">{{ Item.itemName }}</a><br>
                    <div style="width:30%; height:2px; background-color:#763A43; margin:0em 0em 1em 0em; padding: 0em; display: inline-block; _display: inline;"></div><div style="width:65%; height:2px; background-color:#CCCCCC; margin:0em 0em 1em 0em; padding: 0em; display: inline-block; _display: inline;"></div
                    <br>
                </div>

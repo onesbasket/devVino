@@ -31,8 +31,9 @@ class vino_transferSummary(models.Model):
     class Meta:
         db_table = "vino_transferSummary"
 
-    kanaName =  models.CharField(null=True, db_column='kanaName', max_length = 12000)
+    kanaName = models.CharField(null=True, db_column='kanaName', max_length = 12000)
     itemPrice = models.FloatField(null=True, db_column='itemPrice')
+    itemPriceDiscount = models.IntegerField(null=True, db_column='itemPriceDiscount')
     itemPriceDeviation = models.FloatField(null=True, db_column='itemPriceDeviation')
     itemPriceCoefficientVariation = models.FloatField(null=True, db_column='itemPriceCoefficientVariation')
     #years = models.ForeignKey(vino_transferSummary_Year.summaryId)
@@ -69,19 +70,13 @@ class vino_transferSummary_Mlvolume(models.Model):
     summaryId =models.ForeignKey(vino_transferSummary, db_column="summaryId")
     mlVolume = models.CharField(null=True, db_column='mlVolume', max_length= 100)
 
-class vino_transferDetail(models.Model):
+class vino_transferSummary_ShopId(models.Model):
     class Meta:
-        db_table= "vino_transferDetail"
-    itemCode = models.CharField(null=True, db_column='itemCode', db_index=True, max_length= 255)
-    itemName = models.CharField(null=True, db_column='itemName', max_length= 255)
-    itemPrice = models.IntegerField(null=True, db_column='itemPrice')
-    marketSite = models.CharField(null=True, db_column='marketSite', max_length= 255)
-    shopName = models.CharField(null=True, db_column='shopName', max_length= 255)
-    shopCode = models.CharField(null=True, db_column='shopCode', max_length= 255)
-    itemAvailability = models.IntegerField(null=True, db_column='itemAvailability') #ダメになったら消すんじゃなくてフラグをOFF（価格履歴を後で追える？）
-    itemUrl = models.CharField(null=True, db_column='itemUrl', max_length= 255)
-    imageUrl = models.CharField(null=True, db_column='imageUrl', max_length=600)
-    summaryId = models.ManyToManyField(vino_transferSummary)
+        db_table= "vino_transferSummary_ShopId"
+    summaryId =models.ForeignKey(vino_transferSummary, db_column="summaryId")
+    shop = models.CharField(null=True, db_column='shop_id', max_length= 100)
+
+
 
 #class vino_transferConnect(models.Model):
 #    class Meta:
@@ -101,3 +96,18 @@ class Item(models.Model):
 
     def __unicode__(self):
         return self.productName
+
+
+class vino_transferDetail(models.Model):
+    class Meta:
+        db_table= "vino_transferDetail"
+    itemCode = models.CharField(primary_key=True, db_column='itemCode', db_index=True, max_length= 255)
+    itemName = models.CharField(null=True, db_column='itemName', max_length= 255)
+    itemPrice = models.IntegerField(null=True, db_column='itemPrice')
+    marketSite = models.CharField(null=True, db_column='marketSite', max_length= 255)
+    shopName = models.CharField(null=True, db_column='shopName', max_length= 255)
+    shopCode = models.CharField(null=True, db_column='shopCode', max_length= 255)
+    itemAvailability = models.IntegerField(null=True, db_column='itemAvailability') #ダメになったら消すんじゃなくてフラグをOFF（価格履歴を後で追える？）
+    itemUrl = models.CharField(null=True, db_column='itemUrl', max_length= 255)
+    imageUrl = models.CharField(null=True, db_column='imageUrl', max_length=600)
+    summaryId = models.ManyToManyField(vino_transferSummary)

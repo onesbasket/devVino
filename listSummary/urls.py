@@ -6,6 +6,8 @@ urlpatterns = patterns('listSummary.views',
     url(r'^$',ListView.as_view(model=vino_transferSummary),),
     url(r'^search/$','listSummary'),
     url(r'^detail/(?P<Item_id>\d+)/$', 'detailInfo'),
+    url(r'^update_session/$','update_session'),
+    url(r'^truncate_session/$','truncate_session'),
     url(r'^idProductNameCluster\-(?P<Cluster_id>\w+)/$', 'idProductNameCluster'),
         )
 #    url(r'^(?P<poll_id>\d+)/$', 'detail'),

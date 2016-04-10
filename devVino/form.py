@@ -3,16 +3,20 @@
 from django import forms
 from listSummary.models import vino_transferSummary,tagCountry, tagRegion, tagGrape,  vino_transferSummary_TasteType
 
+class shopFilterForm(forms.Form):
+    shopFilter = forms.BooleanField(label="shopFilter", required=False)
 
 class KakikomiForm(forms.Form):
     lowPrice = forms.IntegerField(label="", required=False, widget=forms.TextInput(attrs={'style': 'width:80px'}))
     highPrice = forms.IntegerField(label="", required=False, widget=forms.TextInput(attrs={'style': 'width:80px'}))
     lowYears = forms.IntegerField(required=False,)
     highYears = forms.IntegerField(required=False,)
+    exactYears = forms.IntegerField(required=False,)
     lowVolume = forms.IntegerField(required=False,)
     highVolume = forms.IntegerField(required=False,)
     reviewAvarage = forms.IntegerField(required=False,)
-
+    discount = forms.IntegerField(required=False,)
+    search = forms.CharField(required=False, min_length=3, max_length=100)
 
 class selectionListForm(forms.Form):
     grapeIds = forms.ModelChoiceField(queryset = tagGrape.objects.none(),

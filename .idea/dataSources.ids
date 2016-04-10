@@ -140,8 +140,6 @@
       <primary-key columns="id"/>
     </table>
     <table name="vino_transferDetail" schema="" catalog="" type="TABLE">
-      <column name="id" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>
-      <column name="itemCode" sqlType="VARCHAR(255)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
       <column name="itemName" sqlType="VARCHAR(255)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
       <column name="itemPrice" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
       <column name="marketSite" sqlType="VARCHAR(255)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
@@ -150,19 +148,19 @@
       <column name="itemAvailability" sqlType="INTEGER" precision="0" scale="-1" nullable="true" jdbcType="4"/>
       <column name="itemUrl" sqlType="VARCHAR(255)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
       <column name="imageUrl" sqlType="VARCHAR(600)" precision="0" scale="-1" nullable="true" jdbcType="12"/>
-      <primary-key columns="id"/>
-      <index name="vino_transferDetail_a939061f" unique="true" columns="itemCode"/>
+      <column name="itemCode" sqlType="VARCHAR(255)" precision="0" scale="-1" nullable="false" jdbcType="12"/>
+      <primary-key columns="itemcode"/>
     </table>
     <table name="vino_transferDetail_summaryId" schema="" catalog="" type="TABLE">
       <column name="id" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>
-      <column name="vino_transferdetail_id" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>
+      <column name="vino_transferdetail_id" sqlType="VARCHAR(255)" precision="0" scale="-1" nullable="false" jdbcType="12"/>
       <column name="vino_transfersummary_id" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>
       <primary-key columns="id"/>
       <foreign-key name="#FAKE_vino_transferDetail_summaryId_1" columns="vino_transfersummary_id" ref-table="vino_transferSummary" ref-schema="" ref-catalog="" ref-columns="id" update-rule="3" delete-rule="3" deferrability="1"/>
-      <foreign-key name="#FAKE_vino_transferDetail_summaryId_2" columns="vino_transferdetail_id" ref-table="vino_transferDetail" ref-schema="" ref-catalog="" ref-columns="id" update-rule="3" delete-rule="3" deferrability="1"/>
-      <index name="vino_transferDetail_summaryId_df5a6fb7" unique="true" columns="vino_transfersummary_id"/>
-      <index name="vino_transferDetail_summaryId_84c1d172" unique="true" columns="vino_transferdetail_id"/>
-      <index name="vino_transferDetail_summaryId_vino_transferdetail_id_d7cf63be_uniq" unique="true" columns="vino_transferdetail_id,vino_transfersummary_id"/>
+      <foreign-key name="#FAKE_vino_transferDetail_summaryId_2" columns="vino_transferdetail_id" ref-table="vino_transferDetail_delete" ref-schema="" ref-catalog="" ref-columns="itemCode" update-rule="3" delete-rule="3" deferrability="1"/>
+      <index name="vino_transferDetail_delete_summaryId_df5a6fb7" unique="true" columns="vino_transfersummary_id"/>
+      <index name="vino_transferDetail_delete_summaryId_84c1d172" unique="true" columns="vino_transferdetail_id"/>
+      <index name="vino_transferDetail_delete_summaryId_vino_transferdetail_id_3ad15955_uniq" unique="true" columns="vino_transferdetail_id,vino_transfersummary_id"/>
     </table>
     <table name="vino_transferSummary" schema="" catalog="" type="TABLE">
       <column name="id" sqlType="INTEGER" precision="0" scale="-1" nullable="false" jdbcType="4"/>

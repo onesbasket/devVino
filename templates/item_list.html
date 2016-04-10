@@ -20,7 +20,7 @@
      {% for Item in responseData %}
 			<div class="row">
                <div class="col-md-12">
-                   <a href="/detail/{{ Item.id }}/">{{ Item.kanaName }}</a><br>
+                   <a href="/list/detail/{{ Item.id }}/">{{ Item.kanaName }}</a><br>
                    <div style="width:30%; height:2px; background-color:#763A43; margin:0em 0em 1em 0em; padding: 0em; display: inline-block; _display: inline;"></div><div style="width:65%; height:2px; background-color:#CCCCCC; margin:0em 0em 1em 0em; padding: 0em; display: inline-block; _display: inline;"></div
                    <br>
                </div>
@@ -38,22 +38,6 @@
 					</p>
 				</div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 <div class="col-md-2">
 					<p>
                         {% if Item.reviewAvarage == 0 %}<br>
@@ -69,11 +53,27 @@
 				<div class="col-md-3">
 					<p>
                         <Span style="font-size: large;"> Avarage Price</Span><br>
-					    <Span style="font-size: x-large;">\{{ Item.itemPrice }}</Span>
+					    <Span style="font-size: x-large;">\{{ Item.itemPrice }}</Span><br>
+                        <Span style="font-size: medium;">\{{ Item.itemPriceDiscount }}%</Span>
+                        <p id="addcart" value="{{ Item.id }}">add cart</p>
 					</p>
 				</div>
 			</div>
             {% endfor %}
 
+    <div class="pagination">
+    <span class="step-links">
+        {% if responseData.has_previous %}
+            <a href="?{% url_replace request "page" responseData.previous_page_number %}">previous</a>
+        {% endif %}
 
+        <span class="current">
+            Page {{ responseData.number }} of {{ responseData.paginator.num_pages }}.
+        </span>
+
+        {% if responseData.has_next %}
+            <a href="?{% url_replace request "page" responseData.next_page_number %}">next</a>
+        {% endif %}
+    </span>
+    </div>
 {% endblock %}

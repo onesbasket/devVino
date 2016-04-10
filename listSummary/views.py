@@ -13,15 +13,69 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response, get_object_or_404
 
 from devVino.processRequestGet import test
-from devVino.form import KakikomiForm, selectionListForm
+from devVino.form import KakikomiForm, selectionListForm,shopFilterForm
+
+from django.db.models import Avg, Max, Min
+
+from django.db.models import Q
+
+from django.http import HttpResponse, HttpResponseNotAllowed
+
+import json
+
+def truncate_session(request):
+    try:
+        del request.session['mykey']
+        print "truncate!!!!"
+    except KeyError:
+        pass
+    return HttpResponse("clear")
+
+def update_session(request):
+    if not 'mykey' in request.session:
+       request.session['mykey']=[]
+    listItemIds = request.session['mykey']
+    if 'itemid' in request.POST:
+        itemid = request.POST['itemid']
+        print listItemIds
+        print itemid
+        listItemIds.append(itemid)
+        request.session['mykey'] = listItemIds
+
+    queryDetail = vino_transferDetail.objects.filter(summaryId__in=request.session['mykey']).order_by('itemPrice')
+    querySummary = vino_transferSummary.objects.values('kanaName', 'id').filter(id__in=request.session['mykey'])
+    listWINE = []
+    dictShop = {}
+    for Item in queryDetail:
+        if dictShop.has_key(Item.shopCode):
+            dictShop.update({Item.shopCode:{"shopName": Item.shopName,"bottle":dictShop[Item.shopCode]["bottle"]+1,"sumPrice": dictShop[Item.shopCode]["sumPrice"]+Item.itemPrice }})
+        else:
+            dictShop.update({Item.shopCode:{"shopName": Item.shopName,"bottle": 1,"sumPrice": Item.itemPrice }})
+
+        print dictShop[Item.shopCode]
+
+    for Item in querySummary:
+        print Item['kanaName']
+        listWINE.append('{"selectedName": "' + Item['kanaName'] + '","selectedId":"' + str(Item['id']) + '"}')
+        print "--------------------ree"
+    print "--"
+    print json.dumps(dictShop)
+    if not request.is_ajax() or not request.method=='POST':
+        return HttpResponseNotAllowed(['POST',])
+    listJSON = '{"shops":'+ json.dumps(dictShop) +',"wines":['+",".join(listWINE)+']}'
+    print listJSON
+    return HttpResponse(listJSON)
+
 
 def detailInfo(request, Item_id):
     querySummary = vino_transferSummary.objects.values('id', 'kanaName', 'itemPrice', 'reviewAvarage', 'reviewCount', 'imageUrl').filter(id=Item_id).prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set")
-    queryDetail= vino_transferDetail.objects.filter(summaryId__pk=Item_id)
+    queryDetail = vino_transferDetail.objects.filter(summaryId=Item_id).order_by('itemPrice')
+    aggression =queryDetail.aggregate(Max('itemPrice'), Min('itemPrice'))
     print "------------------"
     print len(queryDetail)
     context_instance =  {'querySummary': querySummary,
-                         'queryDetail': queryDetail,}
+                         'queryDetail': queryDetail,
+                         'aggression': aggression}
 
     return render(request,'detail.html',context_instance,)#,
 
@@ -32,8 +86,11 @@ def listSummary(request):
     print f.is_valid()
     cleanData = f.cleaned_data
 
+    shopfilterform = shopFilterForm(request.GET)
+    print shopfilterform.is_valid()
+    cleanDataShopFilter = shopfilterform.cleaned_data
 
-    selectQuery = vino_transferSummary.objects.values('id', 'kanaName', 'itemPrice', 'reviewAvarage', 'reviewCount', 'imageUrl').prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set")
+    selectQuery = vino_transferSummary.objects.values('id', 'kanaName', 'itemPrice', 'reviewAvarage', 'reviewCount', 'imageUrl','itemPriceDiscount').prefetch_related("vino_transfersummary_tastetype_set").prefetch_related("vino_transfersummary_year_set").prefetch_related("vino_transfersummary_shopid_set")
     if cleanData.get('lowPrice') and cleanData.get('highPrice'):
         getLowPrice = float(cleanData.get('lowPrice'))
         getHighPrice = float(cleanData.get('highPrice'))
@@ -57,6 +114,10 @@ def listSummary(request):
         selectQuery = selectQuery.filter(vino_transfersummary_year__year__lte= getHighYears)
 
 
+    if cleanData.get('exactYears'):
+        getYears = cleanData.get('exactYears')
+        selectQuery = selectQuery.filter(vino_transfersummary_year__year= getYears)
+
     if cleanData.get('lowVolume'):
         getLowPrice = cleanData.get('lowVolume')
 
@@ -68,6 +129,10 @@ def listSummary(request):
         getReviewAvarage = cleanData.get('reviewAvarage')
         selectQuery = selectQuery.filter(reviewAvarage__gt= getReviewAvarage)
 
+    if cleanData.get('discount'):
+        getReviewAvarage = cleanData.get('discount')
+        selectQuery = selectQuery.filter(itemPriceDiscount__gt= getReviewAvarage)
+
     if cleanData.get('reviewCount'):
         getReviewCount = cleanData.get('reviewCount')
 
@@ -75,7 +140,14 @@ def listSummary(request):
         getTasteType = cleanData.get('tasteType')
         selectQuery = selectQuery.filter(vino_transfersummary_tastetype__tasteType=getTasteType)
 
+    if cleanDataShopFilter.get('shopFilter') and request.session.has_key('mykey'):
+        queryShopCode = vino_transferDetail.objects.values_list('shopCode').filter(summaryId__in=request.session['mykey'])
+        selectQuery = selectQuery.filter(vino_transfersummary_shopid__shop__in=queryShopCode)
 
+    if cleanData.get('search'):
+        searchWord = cleanData.get('search')
+        print searchWord
+        selectQuery = selectQuery.filter(Q(kanaName__contains=searchWord))
 
 
 
@@ -130,10 +202,10 @@ def listSummary(request):
         responseData = paginator.page(paginator.num_pages)
         numPage = paginator.num_pages
 
-    lowNumCount = paginator.page(numPage).start_index()
+    lowNumCount = responseData[0]['id']
     print "aaa", lowNumCount
-    highNumCount = paginator.page(numPage).end_index()
-    print "aaa", highNumCount
+    highNumCount = responseData[-1]['id']
+    print "aaa2", highNumCount
 
     selectCountryQuerys = tagCountry.objects.filter(vino_transfersummary__id__gte=lowNumCount, vino_transfersummary__id__lte=highNumCount).values('vino_transfersummary__id',"name","engName")
     dictCountry = {}
@@ -171,7 +243,8 @@ def listSummary(request):
                                'grape': dictGrape,
                                'region': dictRegion,
                                'forms': f,
-                               'forms2': f2,}
+                               'forms2': f2,
+                               'shopFilterForm': shopfilterform}
     print context_instance
 
     return render(request,'item_list.html',context_instance,)#,
