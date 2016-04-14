@@ -4,7 +4,7 @@ from django import forms
 from listSummary.models import vino_transferSummary,tagCountry, tagRegion, tagGrape,  vino_transferSummary_TasteType
 
 class shopFilterForm(forms.Form):
-    shopFilter = forms.BooleanField(label="shopFilter", required=False)
+    shopFilter = forms.BooleanField(label="shopFilter", required=False, widget=forms.HiddenInput)
 
 class KakikomiForm(forms.Form):
     lowPrice = forms.IntegerField(label="", required=False, widget=forms.TextInput(attrs={'style': 'width:80px'}))

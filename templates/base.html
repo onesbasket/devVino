@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html" xml:lang="en" lang="en">
 <!--
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="jquery.extablefilter-latest.js"></script>
@@ -53,11 +53,11 @@
                     if(a.sumPrice > b.sumPrice) return 1;
 
                 });
-                var lenShop = listShop.length
+                var lenShop = listShop.length;
                 joinedHTML = "";
                 for (var i = 0; i < lenShop; i++) {
-                        joinedHTML = joinedHTML + listShop[i].shopName + ' ' + listShop[i].bottle + ' ' + listShop[i].sumPrice + '<br>';
-                    };
+                        joinedHTML = joinedHTML + "<input id='shopKey' name='shopFilter' type='checkbox' value=" + listShop[i].shopKey + ">"  + listShop[i].shopName + ' ' + listShop[i].bottle + ' ' + listShop[i].sumPrice + '<br>';
+                    }
 
                 $("span.selectedShop").html(joinedHTML);
 
@@ -68,6 +68,8 @@
                 }
                 $("span.selectedWine").html(joinedHTML);
                 ;
+
+                $(':checkbox[name="shopFilter"]').val(args);
             },
             error: function (data) {
                 alert('error!!!');
@@ -130,24 +132,21 @@
 
 </head>
 <body>
--------------------------
-<p id="clicktest" value="aaa">button</p>
-<p id="truncate" value="aaa">truncateSession</p>
-<span class="selectedShop"></span>
-<span class="selectedWine"></span>
 
--------------------------
+
+
     <img { alt="vivino" src="{{ STATIC_URL }}image/logo1.png")}} height="100" width="320">
     <div class="container-fluid">
 	    <div class="row">
         {% block sidebar %}
-            <div class="col-md-3">
+
                 LEFT MENU
-                <form method="get">
+                <form method="get" id="query">
+                <div class="col-md-3">
+                    {{ shopFilterForm.shopFilter }}
 
                 <span style="font-size:12px;">
-
-{{ shopFilterForm.shopFilter }}<br>
+                    <br>
                     名前：<br/>
                     {{ forms.search }}<br/>
                     価格：<br/>
@@ -167,16 +166,86 @@
                     {{ field.total_form_count }}
                     {% endfor %}
 
-                <input type="submit" value="Search" />
-                </form>
             </div>
         {% endblock %}
+            <div class="col-md-3 col-md-push-6">
+            -------------------------
+            <p id="clicktest" value="aaa">button</p>
+            <p id="truncate" value="aaa">truncateSession</p>
+                <span class="selectedShop"></span>
+                <input type="submit" value="Search" />
+                <span class="selectedWine"></span>
+            -------------------------
+                </div>
+            </form>
 
-        <div class="col-md-9">
+
+        <div class="col-md-6 col-md-pull-3">
         {% block content %}
         {% endblock %}
         </div>
 
+
 </body>
 
+<script type="text/javascript">
+    (function($) {
+	$.extend({
+		getParameter: function getParameter() {
+			/// <summary>
+			/// URLのパラメーターを取得
+			/// </summary>
+
+			var arg  = []//new Object;
+			var pair = location.search.substring(1).split('&');
+			for(i=0; pair[i]; i++) {
+				var kv = pair[i].split('=');
+				arg.push(kv[1]);
+			}
+			return arg;
+		}
+	});
+})(jQuery);
+    var args = $.getParameter();
+    alert(args);
+    $.ajax({
+            type: 'POST',
+            dataType: 'JSON',
+            url: "/list/update_session/",
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            success: function (json) {
+                var listShop = [];
+                for (var keyString in json.shops) {
+                    listShop.push({shopKey: keyString, shopName:json.shops[keyString].shopName, bottle:json.shops[keyString].bottle, sumPrice:json.shops[keyString].sumPrice});
+                }
+                listShop = listShop.sort(function (a, b) {
+                    if(a.bottle < b.bottle) return 1;
+                    if(a.bottle > b.bottle) return -1;
+                    if(a.sumPrice < b.sumPrice) return -1;
+                    if(a.sumPrice > b.sumPrice) return 1;
+
+                });
+                var lenShop = listShop.length;
+                joinedHTML = "";
+                for (var i = 0; i < lenShop; i++) {
+                        joinedHTML = joinedHTML + "<input id='shopKey' name='shopFilter' type='checkbox' value=" + listShop[i].shopKey + ">"  + listShop[i].shopName + ' ' + listShop[i].bottle + ' ' + listShop[i].sumPrice +  ' '  + Math.floor(listShop[i].sumPrice/listShop[i].bottle) + '<br>';
+                    }
+
+                $("span.selectedShop").html(joinedHTML);
+
+                var lenWine = json.wines.length;
+                joinedHTML = "";
+                for (var i = 0; i < lenWine; i++) {
+                    joinedHTML = joinedHTML + json.wines[i].selectedId + json.wines[i].selectedName + '<br>';
+                }
+                $("span.selectedWine").html(joinedHTML);
+                ;
+
+                $(':checkbox[name="shopFilter"]').val(args);
+            },
+            error: function (json) {
+                alert('error!!!');
+            }
+    });
+</script>
 </html>

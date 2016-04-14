@@ -140,9 +140,15 @@ def listSummary(request):
         getTasteType = cleanData.get('tasteType')
         selectQuery = selectQuery.filter(vino_transfersummary_tastetype__tasteType=getTasteType)
 
+
     if cleanDataShopFilter.get('shopFilter') and request.session.has_key('mykey'):
-        queryShopCode = vino_transferDetail.objects.values_list('shopCode').filter(summaryId__in=request.session['mykey'])
+        getShopFileter = request.GET.getlist('shopFilter')
+        if len(getShopFileter)==1 and  getShopFileter[0] == "on":
+            queryShopCode = vino_transferDetail.objects.values_list('shopCode').filter(summaryId__in=request.session['mykey'])
+        else:
+            queryShopCode = getShopFileter
         selectQuery = selectQuery.filter(vino_transfersummary_shopid__shop__in=queryShopCode)
+
 
     if cleanData.get('search'):
         searchWord = cleanData.get('search')
@@ -185,6 +191,9 @@ def listSummary(request):
     #print "f2"
     #print f2.is_valid()
 
+    if request.GET.get('sort'):
+        sort = request.GET.get('sort')
+        selectQuery = selectQuery.order_by(sort)
 
 
 
